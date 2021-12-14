@@ -3,16 +3,21 @@ using SemaphoreTask.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace SemaphoreTask.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        Stopwatch stopwatch1;
+        Stopwatch stopwatch2;
+        DispatcherTimer dispatcher = new DispatcherTimer();
         public MainWindow MainView { get; set; }
 
         public RelayCommand StartCommand { get; set; }
@@ -65,13 +70,21 @@ namespace SemaphoreTask.ViewModels
         public ObservableCollection<Car> NewCars
         {
             get { return _newCars; }
-            set { _newCars = value;OnPropertyChanged(); }
+            set { _newCars = value; OnPropertyChanged(); }
         }
+
+        public int Count { get; set; } = 0;
+
+
 
 
         public RelayCommand AddCarsCommand { get; set; }
+
         public MainViewModel()
         {
+
+            dispatcher.Interval = TimeSpan.FromSeconds(2);
+            dispatcher.Tick += Dispatcher_Tick;
 
             AddCarsCommand = new RelayCommand((sender) =>
             {
@@ -239,53 +252,169 @@ namespace SemaphoreTask.ViewModels
 
             });
 
-
-
-
             StartCommand = new RelayCommand((sender) =>
             {
+                NewCars = new ObservableCollection<Car>();
+
+                MainViewModel mainViewModel = new MainViewModel();
+
                 if (MainView.MyToogleButton.IsChecked == false)
                 {
-                    MessageBox.Show("False");
+                    stopwatch1 = new Stopwatch();
+                    stopwatch1.Start();
+                    dispatcher.Start();
+
                 }
+
                 if (MainView.MyToogleButton.IsChecked == true)
                 {
-                    var cars1 = FileHelper.JsonHelper.JSONDeSerialization("Bmw.json");
-                    var cars2 = FileHelper.JsonHelper.JSONDeSerialization("Mercedes.json");
-                    var cars3 = FileHelper.JsonHelper.JSONDeSerialization("Chevrolet.json");
-                    var cars4 = FileHelper.JsonHelper.JSONDeSerialization("Hyundai.json");
-                    var cars5 = FileHelper.JsonHelper.JSONDeSerialization("Toyota.json");
-                    NewCars = new ObservableCollection<Car>();
 
-                    foreach (var item1 in cars1)
-                    {
-                        NewCars.Add(item1);
-                    }
-                    foreach (var item2 in cars2)
-                    {
-                        NewCars.Add(item2);
-                    }
-                    foreach (var item3 in cars3)
-                    {
-                        NewCars.Add(item3);
-                    }
+                    stopwatch2 = new Stopwatch();
+                    stopwatch2.Start();
+                    Semaphore semaphore = new Semaphore(5, 7, "Ruslan");
 
-                    foreach (var item4 in cars4)
-                    {
-                        NewCars.Add(item4);
-                    }
+                    ThreadPool.QueueUserWorkItem(MoveToListBox, semaphore);
 
-                    foreach (var item5 in cars5)
-                    {
-                        NewCars.Add(item5);
-                    }
-
-                    MainView.CarListBx.ItemsSource = NewCars;
 
                 }
-
             });
+        }
 
+        private void Dispatcher_Tick(object sender, EventArgs e)
+        {
+            Count++;
+            var tick1 = stopwatch1.Elapsed.Milliseconds;
+            MainView.ShowTime.Text = tick1.ToString() + " Milliseconds";
+            try
+            {
+                if (Count == 1)
+                {
+                    var cars1 = FileHelper.JsonHelper.JSONDeSerialization("Bmw.json");
+                    foreach (var item in cars1)
+                    {
+                        NewCars.Add(item);
+                    }
+                    Thread.Sleep(1000);
+                    MainView.CarListBx.ItemsSource = NewCars;
+
+
+                }
+                if (Count == 2)
+                {
+                    var cars2 = FileHelper.JsonHelper.JSONDeSerialization("Mercedes.json");
+                    foreach (var item in cars2)
+                    {
+                        NewCars.Add(item);
+                    }
+                    Thread.Sleep(1000);
+                    MainView.CarListBx.ItemsSource = NewCars;
+                }
+                if (Count == 3)
+                {
+                    var cars3 = FileHelper.JsonHelper.JSONDeSerialization("Chevrolet.json");
+                    foreach (var item in cars3)
+                    {
+                        NewCars.Add(item);
+                    }
+                    Thread.Sleep(1000);
+                    MainView.CarListBx.ItemsSource = NewCars;
+                }
+                if (Count == 4)
+                {
+                    var cars4 = FileHelper.JsonHelper.JSONDeSerialization("Hyundai.json");
+                    foreach (var item in cars4)
+                    {
+                        NewCars.Add(item);
+                    }
+                    Thread.Sleep(1000);
+                    MainView.CarListBx.ItemsSource = NewCars;
+                }
+                if (Count == 5)
+                {
+                    var cars5 = FileHelper.JsonHelper.JSONDeSerialization("Toyota.json");
+                    foreach (var item in cars5)
+                    {
+                        NewCars.Add(item);
+                    }
+                    Thread.Sleep(1000);
+                    MainView.CarListBx.ItemsSource = NewCars;
+                }
+
+                if (Count > 5)
+                {
+
+                    dispatcher.Stop();
+                }
+            }
+            catch (Exception)
+            {
+
+
+            }
+        }
+
+
+        private void MoveToListBox(object state)
+        {
+            var s = state as Semaphore;
+            bool st = false;
+            while (!st)
+            {
+                var ticks2 = stopwatch2.Elapsed.Milliseconds;
+                MainView.Dispatcher.Invoke(() =>
+                {
+                    MainView.ShowTime.Text = ticks2.ToString() + " Milliseconds";
+                });
+                if (s.WaitOne(500))
+                {
+                    try
+                    {
+                        var cars1 = FileHelper.JsonHelper.JSONDeSerialization("Bmw.json");
+                        var cars2 = FileHelper.JsonHelper.JSONDeSerialization("Mercedes.json");
+                        var cars3 = FileHelper.JsonHelper.JSONDeSerialization("Chevrolet.json");
+                        var cars4 = FileHelper.JsonHelper.JSONDeSerialization("Hyundai.json");
+                        var cars5 = FileHelper.JsonHelper.JSONDeSerialization("Toyota.json");
+                        NewCars = new ObservableCollection<Car>();
+
+                        foreach (var item in cars1)
+                        {
+                            NewCars.Add(item);
+                        }
+
+                        foreach (var item in cars2)
+                        {
+                            NewCars.Add(item);
+                        }
+                        foreach (var item in cars3)
+                        {
+                            NewCars.Add(item);
+                        }
+                        foreach (var item in cars4)
+                        {
+                            NewCars.Add(item);
+                        }
+                        foreach (var item in cars5)
+                        {
+                            NewCars.Add(item);
+                        }
+                        MainView.Dispatcher.Invoke(() =>
+                        {
+                            MainView.CarListBx.ItemsSource = NewCars;
+                        });
+                        Thread.Sleep(2000);
+                    }
+                    finally
+                    {
+                        st = true;
+                        s.Release();
+                    }
+                }
+                else
+                {
+                    s.Release(2);
+
+                }
+            }
 
         }
     }

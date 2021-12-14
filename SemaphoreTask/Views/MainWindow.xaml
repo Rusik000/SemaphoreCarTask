@@ -116,15 +116,15 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <Canvas>
+            <Canvas Background="ForestGreen">
                 <Button Width="167" Height="50" Canvas.Left="623" Content="Add Cars" FontSize="30" Background="Green" Foreground="White" Command="{Binding AddCarsCommand}"  ></Button>
             </Canvas>
             <WrapPanel Height="70" VerticalAlignment="Bottom" >
-                <TextBlock Height="67" Width="100"  Text="Single" FontSize="30" Margin="10,0,10,0"  ></TextBlock>
+                <TextBlock Height="67" Width="100"  Text="Single" FontSize="25" Margin="10,0,10,0"  ></TextBlock>
                 <ToggleButton Margin="5" Name="MyToogleButton"  ></ToggleButton>
-                <TextBlock Height="67" Width="100"  Text="Multi" FontSize="30" Margin="10,0,10,0"  ></TextBlock>
-                <TextBlock Height="67" Width="100"  Text="Time : " FontSize="30"   ></TextBlock>
-                <TextBlock Height="67" Width="150"  FontSize="30" Text="{Binding time }"   ></TextBlock>
+                <TextBlock Height="67" Width="100"  Text="Multi" FontSize="25" Margin="10,0,10,0"  ></TextBlock>
+                <TextBlock Height="67" Width="100"  Text="Time : " FontSize="25"   ></TextBlock>
+                <TextBlock Name="ShowTime" Height="67" Width="150"  FontSize="20" Text="{Binding time }"   ></TextBlock>
 
                 <Border BorderBrush="Black"  Background="DarkOrange" BorderThickness="5" Width="150" CornerRadius="30"  >
                     <Button Command="{Binding StartCommand}" Content="Start" BorderBrush="DarkOrange"  FontSize="30"  Width="100" Height="40" Background="DarkOrange">
